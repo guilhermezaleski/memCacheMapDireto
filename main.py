@@ -12,6 +12,8 @@ tamTag = 24
 
 # funcao para impressao do HELP
 def help():
+
+    print 'huhuhuh'
     print('\n\n'
           "python main.py  [\caminho arquivo txt] [-p]\n\n"
           "[-p]                      Executa passo a passo\n"
