@@ -1,7 +1,8 @@
 # coding=UTF-8
 import sys
 
-#-------------Definicoes---------Define tamanho de endereçamento da memória cache
+#-------------Definicoes---------
+# Define tamanho de endereçamento da memória cache
 
 tamEndereco = 32
 tamByte = 2
@@ -26,19 +27,26 @@ def help():
 #função para abertura de arquivo
 def abrirArquivo():
     try:
-        param2 = param[1]#param2 recebe caminho do arquivo a ser aberto
+
+        #param2 recebe caminho do arquivo a ser aberto
+        param2 = param[1]
+
     except Exception:
+
         print('\n   --Erro, informe o caminho do arquivo\n')
         sys.exit(1)
 
     try:
-        arq = open(param[1], 'r', encoding="utf8") #somente no modo leitura em codificação utf8
+
+        #somente no modo leitura em codificação utf8
+        arq = open(param[1], 'r', encoding="utf8")
 
     except Exception:
         print('\n   --Erro, não foi possivel abrir o arquivo\n')
         sys.exit(1)
 
-    return arq # retorna arquivo
+    # retorna arquivo
+    return arq
 
 #funcao para fechar o arquivo
 def fecharArquivo(arqvTxt):
