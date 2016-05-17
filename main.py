@@ -98,44 +98,28 @@ def tabelaCache(cache, valiCache, tamTag, tamIndex, tamOffSet, hit, miss):
     print('hit:', hit, '  miss:', miss)
 
 #busca tag do endereco lido do arquivo
-def buscaTag(endr, tamEndereco, tamTag):
-
-    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco) #complementa o tamanho da tag
+def buscaTag(endrBin, tamTag):
 
     tag = endrBin[2:tamTag+2]
 
     return tag
 
 #busca index do endereco lido do arquivo
-def buscaIdx(endr, tamEndereco, tamTag, tamIndex):
-
-    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco) #complementa o tamanho do index
+def buscaIdx(endrBin, tamTag, tamIndex):
 
     idx = endrBin[tamTag + 2:tamIndex + tamTag + 2]
 
     return idx
 
 #busca offset do endereco lido do arquivo
-def buscaOffset(endr, tamEndereco, tamTag, tamIndex, tamOffSet):
-
-    endrBin = bin(int(endr, 16))#converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco) #complementa o tamanho do offset
+def buscaOffset(endrBin, tamTag, tamIndex, tamOffSet):
 
     offset = endrBin[tamTag + tamIndex + 2:tamTag + tamIndex + tamOffSet + 2]
 
     return offset
 
 #busca byte do endereco lido do arquivo
-def buscaByte(endr, tamEndereco, tamTag, tamIndex, tamOffSet, tamByte):
-
-    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco)#complementa o tamanho do byte
+def buscaByte(endrBin,tamTag, tamIndex, tamOffSet, tamByte):
 
     byte = endrBin[tamTag + tamIndex + tamOffSet + 2:tamTag + tamIndex + tamOffSet + tamByte + 2]
 
@@ -200,16 +184,19 @@ fecharArquivo(arqvTxt) #fecha o arquivo
 cache = [0 for x in range(2**tamIndex)] #inicializa a lista Cache com zeros de acordo com o tamanho de index
 valiCache = [0 for x in range(2**tamIndex)] #inicializa a lista do Bit de validade com zeros de
                                             # acordo com o tamanho de index
-
 hit = 0
 miss = 0
 
 for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
+
+    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
+    endrBin = testaTamEndr(endrBin, tamEndereco)#complementa o tamanho do by
+
     try:
-        tag =    buscaTag    (endr, tamEndereco, tamTag) #busca a tag
-        idx =    buscaIdx    (endr, tamEndereco, tamTag, tamIndex) #busca o index
-        offset = buscaOffset (endr, tamEndereco, tamTag, tamIndex, tamOffSet) #busca o offset
-        byte =   buscaByte   (endr, tamEndereco, tamTag, tamIndex, tamOffSet, tamByte) #busca o byte
+        tag =    buscaTag    (endrBin, tamTag) #busca a tag
+        idx =    buscaIdx    (endrBin, tamTag, tamIndex) #busca o index
+        offset = buscaOffset (endrBin, tamTag, tamIndex, tamOffSet) #busca o offset
+        byte =   buscaByte   (endrBin, tamTag, tamIndex, tamOffSet, tamByte) #busca o byte
     except Exception:
         print('-Erro, endereço inválido', endr)
         continue
