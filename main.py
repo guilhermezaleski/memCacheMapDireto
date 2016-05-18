@@ -3,12 +3,12 @@ import sys
 
 #-------------Definicoes---------
 # Define tamanho de endereçamento da memória cache
-
-tamEndereco = 32
-tamByte = 2
-tamOffSet = 2
-tamIndex = 4
-tamTag = 24
+class defCache(object):
+    tamEndereco = 32
+    tamByte = 2
+    tamOffSet = 2
+    tamIndex = 4
+    tamTag = 24
 #--------------------------------
 
 # funcao para impressao do HELP
@@ -68,7 +68,7 @@ def lerArquivo(arqv):
     return txt
 
 #função de print da estrutura visual e conteudo da cache
-def tabelaCache(cache, valiCache, tamTag, tamIndex, tamOffSet, hit, miss):
+def tabelaCache(cache, valiCache, defCache, hit, miss):
 
     idx = len(cache) #retorna qtde de linhas do cache
 
@@ -82,8 +82,8 @@ def tabelaCache(cache, valiCache, tamTag, tamIndex, tamOffSet, hit, miss):
         linha = hex(x)
 
         if valiCache[x] == 1: #verifica o bit de validade
-            tag = testaTamEndr(hex(int(endrCache[0:tamTag], 2)), int(tamTag/4)) #extrair tag do endereco
-            tamWrdHex = int((tamTag + tamIndex + tamOffSet)/4) #armazena o tamanho da palavra
+            tag = testaTamEndr(hex(int(endrCache[0:defCache.tamTag], 2)), int(defCache.tamTag/4))#extrai tag do endereco
+            tamWrdHex = int((defCache.tamTag + defCache.tamIndex + defCache.tamOffSet)/4) #armazena o tamanho da palavra
             word = testaTamEndr(hex(int(endrCache, 2)),tamWrdHex) #extrair word do endereço
 
             print( '|',linha,'|',valiCache[x],'|',
@@ -98,46 +98,32 @@ def tabelaCache(cache, valiCache, tamTag, tamIndex, tamOffSet, hit, miss):
     print('hit:', hit, '  miss:', miss)
 
 #busca tag do endereco lido do arquivo
-def buscaTag(endr, tamEndereco, tamTag):
+def buscaTag(endrBin, defCache):
 
-    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco) #complementa o tamanho da tag
-
-    tag = endrBin[2:tamTag+2]
+    tag = endrBin[2:defCache.tamTag+2]
 
     return tag
 
 #busca index do endereco lido do arquivo
-def buscaIdx(endr, tamEndereco, tamTag, tamIndex):
+def buscaIdx(endrBin, defCache):
 
-    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco) #complementa o tamanho do index
-
-    idx = endrBin[tamTag + 2:tamIndex + tamTag + 2]
+    idx = endrBin[defCache.tamTag + 2:defCache.tamIndex + defCache.tamTag + 2]
 
     return idx
 
 #busca offset do endereco lido do arquivo
-def buscaOffset(endr, tamEndereco, tamTag, tamIndex, tamOffSet):
+def buscaOffset(endrBin, defCache):
 
-    endrBin = bin(int(endr, 16))#converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco) #complementa o tamanho do offset
-
-    offset = endrBin[tamTag + tamIndex + 2:tamTag + tamIndex + tamOffSet + 2]
+    offset = endrBin[defCache.tamTag + defCache.tamIndex + 2 :
+                        defCache.tamTag + defCache.tamIndex + defCache.tamOffSet + 2]
 
     return offset
 
 #busca byte do endereco lido do arquivo
-def buscaByte(endr, tamEndereco, tamTag, tamIndex, tamOffSet, tamByte):
+def buscaByte(endrBin,defCache):
 
-    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
-
-    endrBin = testaTamEndr(endrBin, tamEndereco)#complementa o tamanho do byte
-
-    byte = endrBin[tamTag + tamIndex + tamOffSet + 2:tamTag + tamIndex + tamOffSet + tamByte + 2]
+    byte = endrBin[defCache.tamTag + defCache.tamIndex + defCache.tamOffSet + 2:
+                    defCache.tamTag + defCache.tamIndex + defCache.tamOffSet + defCache.tamByte + 2]
 
     return byte
 
@@ -147,7 +133,7 @@ def testaTamEndr(endr, tamEndereco):
     tam = len(endr) - 2
     aux = ''
 
-    if not tamEndereco == tam:
+    if not tamEndereco <= tam:
         comp = tamEndereco - tam #diferença do tamanho requisitado
         for x in range(comp):
             aux = aux + '0'
@@ -193,23 +179,27 @@ if cont == 2:
 #-------------------------------------------------------
 
 arqvTxt = abrirArquivo() #chama funcao para abrir
+
 enderecosHexa = lerArquivo(arqvTxt) #retorna o conteudo do arquivo, cada linha em uma posicao da lista
 fecharArquivo(arqvTxt) #fecha o arquivo
 
 
-cache = [0 for x in range(2**tamIndex)] #inicializa a lista Cache com zeros de acordo com o tamanho de index
-valiCache = [0 for x in range(2**tamIndex)] #inicializa a lista do Bit de validade com zeros de
+cache = [0 for x in range(2**defCache.tamIndex)] #inicializa a lista Cache com zeros de acordo com o tamanho de index
+valiCache = [0 for x in range(2**defCache.tamIndex)] #inicializa a lista do Bit de validade com zeros de
                                             # acordo com o tamanho de index
-
 hit = 0
 miss = 0
 
 for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
+
+    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
+    endrBin = testaTamEndr(endrBin, defCache.tamEndereco)#complementa o tamanho do by
+
     try:
-        tag =    buscaTag    (endr, tamEndereco, tamTag) #busca a tag
-        idx =    buscaIdx    (endr, tamEndereco, tamTag, tamIndex) #busca o index
-        offset = buscaOffset (endr, tamEndereco, tamTag, tamIndex, tamOffSet) #busca o offset
-        byte =   buscaByte   (endr, tamEndereco, tamTag, tamIndex, tamOffSet, tamByte) #busca o byte
+        tag =    buscaTag    (endrBin, defCache) #busca a tag
+        idx =    buscaIdx    (endrBin, defCache) #busca o index
+        offset = buscaOffset (endrBin, defCache) #busca o offset
+        byte =   buscaByte   (endrBin, defCache) #busca o byte
     except Exception:
         print('-Erro, endereço inválido', endr)
         continue
@@ -225,7 +215,7 @@ for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
         endrCache = cache[int(idx, 2)]
 
         #verifica de a tag eh igual a solicitada
-        if tag == endrCache[0:tamTag]:
+        if tag == endrCache[0:defCache.tamTag]:
             hit += 1 #contador de hit
         else:
             miss += 1
@@ -234,12 +224,13 @@ for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
     # verifica se ira imprimir a tabela a cada leitura de endereco
     if passo == True:
         print('\n\nLeitura do endereço:', endr)
-        tabelaCache(cache, valiCache, tamTag, tamIndex, tamOffSet, hit, miss) #imprime a tabela cache
+        #imprime a tabela cache
+        tabelaCache(cache, valiCache, defCache, hit, miss)
         input()
 
 #imprime a tabela cache ao final da execucao, se não imprimir passo a passo
 if not passo == True:
-    tabelaCache(cache, valiCache, tamTag, tamIndex, tamOffSet, hit, miss)
+    tabelaCache(cache, valiCache, defCache, hit, miss)
 
 
 #fim do codigo
