@@ -178,8 +178,8 @@ if cont == 2:
 
 #-------------------------------------------------------
 
-#arqvTxt = abrirArquivo() #chama funcao para abrir
-arqvTxt = open('hexas.txt', 'r', encoding="utf8")
+arqvTxt = abrirArquivo() #chama funcao para abrir
+
 enderecosHexa = lerArquivo(arqvTxt) #retorna o conteudo do arquivo, cada linha em uma posicao da lista
 fecharArquivo(arqvTxt) #fecha o arquivo
 
@@ -225,7 +225,7 @@ for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
     if passo == True:
         print('\n\nLeitura do endereço:', endr)
         #imprime a tabela cache
-        tabelaCache(cache, valiCache, defCache.tamTag, defCache.tamIndex, defCache.tamOffSet, hit, miss)
+        tabelaCache(cache, valiCache, defCache, hit, miss)
         input()
 
 #imprime a tabela cache ao final da execucao, se não imprimir passo a passo
