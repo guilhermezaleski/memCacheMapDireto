@@ -70,28 +70,30 @@ def lerArquivo(arqv):
 #função de print da estrutura visual e conteudo da cache
 def tabelaCache(cache, valiCache, defCache, hit, miss):
 
-    idx = len(cache) #retorna qtde de linhas do cache
-
     print('\n'
         '| Idx | V | Tag      |    data    |    data    |    data    |    data    |\n'
         '-------------------------------------------------------------------------')
 
-    for x in range(idx): #realiza for conforme linhas da cache
+    for x in range(2**defCache.tamIndex): #realiza for conforme linhas da cache
 
         endrCache = cache[x]
         linha = hex(x)
 
         if valiCache[x] == 1: #verifica o bit de validade
             tag = testaTamEndr(hex(int(endrCache[0:defCache.tamTag], 2)), int(defCache.tamTag/4))#extrai tag do endereco
-            tamWrdHex = int((defCache.tamTag + defCache.tamIndex + defCache.tamOffSet)/4) #armazena o tamanho da palavra
-            word = testaTamEndr(hex(int(endrCache, 2)),tamWrdHex) #extrair word do endereço
+
+            tamWrdHex = int((defCache.tamTag + defCache.tamIndex + defCache.tamOffSet )/4) #armazena o tamanho da palavra
+            word = testaTamEndr(hex(int(endrCache, 2)), int(defCache.tamEndereco/4)) #extrair word do endereço
+            word = word[:tamWrdHex+2]
+
+
 
             print( '|',linha,'|',valiCache[x],'|',
                     tag,'|',
-                    word[0:tamWrdHex+2]+'X','|',
-                    word[0:tamWrdHex+2]+'X','|',
-                    word[0:tamWrdHex+2]+'X','|',
-                    word[0:tamWrdHex+2]+'X','|')
+                    word[:tamWrdHex+2]+'X','|',
+                    word[:tamWrdHex+2]+'X','|',
+                    word[:tamWrdHex+2]+'X','|',
+                    word[:tamWrdHex+2]+'X','|')
         else:
             print('|', linha, '|', valiCache[x], '|')
     print('--------------------------------------------------------------------------')
@@ -178,8 +180,8 @@ if cont == 2:
 
 #-------------------------------------------------------
 
-arqvTxt = abrirArquivo() #chama funcao para abrir
-
+#arqvTxt = abrirArquivo() #chama funcao para abrir
+arqvTxt = open('endrcache.txt', 'r', encoding="utf8")
 enderecosHexa = lerArquivo(arqvTxt) #retorna o conteudo do arquivo, cada linha em uma posicao da lista
 fecharArquivo(arqvTxt) #fecha o arquivo
 
@@ -192,10 +194,15 @@ miss = 0
 
 for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
 
-    endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
-    endrBin = testaTamEndr(endrBin, defCache.tamEndereco)#complementa o tamanho do by
+    if passo == True:
+        #imprime a tabela cache
+        tabelaCache(cache, valiCache, defCache, hit, miss)
+        input()
 
     try:
+        endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
+        endrBin = testaTamEndr(endrBin, defCache.tamEndereco)#complementa o tamanho requerido
+
         tag =    buscaTag    (endrBin, defCache) #busca a tag
         idx =    buscaIdx    (endrBin, defCache) #busca o index
         offset = buscaOffset (endrBin, defCache) #busca o offset
