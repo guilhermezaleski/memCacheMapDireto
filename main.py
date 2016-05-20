@@ -187,7 +187,7 @@ def testaTamEndr(endr, tamEndereco):
 
 #-------------busca e tratamento de argumentos
 #atribuicao dos parametro
-param = sys.argv
+argumentos = sys.argv
 
 #inicializacao de variaveis
 
@@ -197,14 +197,14 @@ miss = 0
 #controle para execucao do passo a passo
 passo = False
 passoCabecalho = False
-cont = len(param)
+cont = len(argumentos)
 
 #testa se o segundo argumento passado e valido
 if cont == 3:
-    if not param[2] == '-p':
+    if not argumentos[2] == '-p':
         print('\n   --Erro, argumentos não conhecidos\n')
         help()
-    elif param[2] == '-p':
+    elif argumentos[2] == '-p':
         #Se o segundo paramentro for -p ele paaso recebe True, assim executando passo a passo
         passo = True
         passoCabecalho = True
@@ -212,16 +212,16 @@ if cont == 3:
 #testa se os argumentos sao validos ou chamada de help, senao chama o help
 if cont == 2:
     try:
-        if param[1] == '/?' or param[1] == 'help':
+        if argumentos[1] == '/?' or argumentos[1] == 'help':
             print('\n   --Erro, argumentos não conhecidos\n')
             help()
     except:
-        if not param[1] == '/?' or param[1] == 'help':
+        if not argumentos[1] == '/?' or argumentos[1] == 'help':
             print('\n   --Erro, argumentos não conhecidos\n')
             help()
 
 #chama funcao para abrir
-arqvTxt = abrirArquivo(param)
+arqvTxt = abrirArquivo(argumentos)
 
 #retorna o conteudo do arquivo, cada linha em uma posicao da lista
 enderecosHexa = lerArquivo(arqvTxt)
