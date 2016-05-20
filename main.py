@@ -70,9 +70,26 @@ def lerArquivo(arqv):
 #função de print da estrutura visual e conteudo da cache
 def tabelaCache(cache, valiCache, defCache, hit, miss):
 
+    tamTag = ' '
+    tamWrdHex = int((defCache.tamTag + defCache.tamIndex + defCache.tamOffSet )/4) #armazena o tamanho da palavra
+    tamWrdHexAux = ' '
+    traco = '='
+    qntBlocos = ''
+
+    for y in range(int(defCache.tamTag/4)-4):
+        tamTag = tamTag + ' '
+
+    for y in range(tamWrdHex-2):
+        tamWrdHexAux = tamWrdHexAux + ' '
+
+    for y in range(2**defCache.tamOffSet):
+        qntBlocos = qntBlocos + ' | Data' + tamWrdHexAux
+
+    for y in range(10*int(defCache.tamTag/4)+tamWrdHex+2**defCache.tamOffSet):
+        traco = traco + '='
+
     print('\n'
-        '| Idx | V | Tag      |    data    |    data    |    data    |    data    |\n'
-        '-------------------------------------------------------------------------')
+          '| Idx | V | Tag ',tamTag + qntBlocos + ' |' '\n' + traco)
 
     for x in range(2**defCache.tamIndex): #realiza for conforme linhas da cache
 
@@ -82,21 +99,20 @@ def tabelaCache(cache, valiCache, defCache, hit, miss):
         if valiCache[x] == 1: #verifica o bit de validade
             tag = testaTamEndr(hex(int(endrCache[0:defCache.tamTag], 2)), int(defCache.tamTag/4))#extrai tag do endereco
 
-            tamWrdHex = int((defCache.tamTag + defCache.tamIndex + defCache.tamOffSet )/4) #armazena o tamanho da palavra
+
             word = testaTamEndr(hex(int(endrCache, 2)), int(defCache.tamEndereco/4)) #extrair word do endereço
             word = word[:tamWrdHex+2]
+            data = ' '
 
-
+            for y in range(2**defCache.tamOffSet):
+                data = data + word[:tamWrdHex+2]+'X | '
 
             print( '|',linha,'|',valiCache[x],'|',
-                    tag,'|',
-                    word[:tamWrdHex+2]+'X','|',
-                    word[:tamWrdHex+2]+'X','|',
-                    word[:tamWrdHex+2]+'X','|',
-                    word[:tamWrdHex+2]+'X','|')
+                   tag+' |'+ data)
+
         else:
             print('|', linha, '|', valiCache[x], '|')
-    print('--------------------------------------------------------------------------')
+    print(traco)
     print('hit:', hit, '  miss:', miss)
 
 #busca tag do endereco lido do arquivo
