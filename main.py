@@ -1,7 +1,16 @@
 # coding=UTF-8
+
+'''
+   Simulação de acesso a memória cache com mapeamento direto.
+
+   Desenvolvido em python3.5.1, por Guilherme Zaleski e Tcharles Clunck
+
+'''
+
+
 import sys
 
-#-------------Definicoes---------
+'''-------------Definicoes---------'''
 # Define tamanho de endereçamento da memória cache
 class defCache(object):
     tamEndereco = 32
@@ -9,7 +18,6 @@ class defCache(object):
     tamOffSet = 2
     tamIndex = 4
     tamTag = 24
-#--------------------------------
 
 # funcao para impressao do HELP
 def help():
@@ -89,7 +97,7 @@ def tabelaCache(cache, valiCache, defCache, hit, miss):
         qntBlocos = qntBlocos + ' | Data' + tamWrdHexAux
 
     #Configura tamnho do traco abaixo do cabecalho
-    for y in range(10*int(defCache.tamTag/4)+tamWrdHex+2**defCache.tamOffSet):
+    for y in range(15+int(defCache.tamTag/4)+((6+tamWrdHex)*(2**defCache.tamOffSet))):
         traco = traco + '='
 
     #Imprime cabecalho
@@ -123,7 +131,7 @@ def tabelaCache(cache, valiCache, defCache, hit, miss):
             print('|', linha, '|', valiCache[x], '|')
 
     print(traco)
-    print('hit:', hit, '  miss:', miss)
+    print('    HITS:', hit, '    MISSES:', miss)
 
 #busca tag do endereco lido do arquivo
 def buscaTag(endrBin, defCache):
@@ -171,12 +179,11 @@ def testaTamEndr(endr, tamEndereco):
 
 
 
-
-
+'''
 #####################################################################
-#-------------------------------MAIN---------------------------------
+#-----------------------------  MAIN  ------------------------------#
 #####################################################################
-
+'''
 
 #-------------busca e tratamento de argumentos
 #atribuicao dos parametro
@@ -235,6 +242,8 @@ for endr in enderecosHexa:
 
     # verifica se ira imprimir a tabela a cada leitura de endereco, imprimindo a cache vazia
     if passo == True and passoCabecalho == True:
+
+        print('\n\nEstado Inicial:')
 
         #imprime a tabela cache
         tabelaCache(cache, valiCache, defCache, hit, miss)
