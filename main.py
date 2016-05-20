@@ -24,8 +24,8 @@ def help():
           "                          em hexadecimal\n\n")
     sys.exit(1)
 
-#função para abertura de arquivo
-def abrirArquivo():
+#função para abertura de arquivo, com tratamento de erros na abertura
+def abrirArquivo(param):
     try:
 
         #param2 recebe caminho do arquivo a ser aberto
@@ -38,7 +38,7 @@ def abrirArquivo():
 
     try:
 
-        #somente no modo leitura em codificação utf8
+        #Abre  o arquivo em modo de leitura em codificacao utf8
         arq = open(param[1], 'r', encoding="utf8")
 
     except Exception:
@@ -53,7 +53,7 @@ def fecharArquivo(arqvTxt):
 
     arqvTxt.close()
 
-#função ler conteudo do arquivo
+#função ler conteudo do arquivo, com tratamento de erros na leitura do arquivo
 def lerArquivo(arqv):
     txt = []
     try:
@@ -70,48 +70,58 @@ def lerArquivo(arqv):
 #função de print da estrutura visual e conteudo da cache
 def tabelaCache(cache, valiCache, defCache, hit, miss):
 
-    tamTag = ' '
     tamWrdHex = int((defCache.tamTag + defCache.tamIndex + defCache.tamOffSet )/4) #armazena o tamanho da palavra
+    tamTag = ' '
     tamWrdHexAux = ' '
     traco = '='
     qntBlocos = ''
 
+    #Configura o espaco da tag no cabecalho para imprimir
     for y in range(int(defCache.tamTag/4)-4):
         tamTag = tamTag + ' '
 
+    #Configura o espaco da palavra no cabecalho para imprimir
     for y in range(tamWrdHex-2):
         tamWrdHexAux = tamWrdHexAux + ' '
 
+    #Configura e adiciona no cabecalho o espaco e a palavra Data
     for y in range(2**defCache.tamOffSet):
         qntBlocos = qntBlocos + ' | Data' + tamWrdHexAux
 
+    #Configura tamnho do traco abaixo do cabecalho
     for y in range(10*int(defCache.tamTag/4)+tamWrdHex+2**defCache.tamOffSet):
         traco = traco + '='
 
+    #Imprime cabecalho
     print('\n'
           '| Idx | V | Tag ',tamTag + qntBlocos + ' |' '\n' + traco)
 
-    for x in range(2**defCache.tamIndex): #realiza for conforme linhas da cache
+    #realiza o loop  conforme quantidades de linhas na cache, a cada loop eh realizada a impressao de uma linha
+    for x in range(2**defCache.tamIndex):
 
         endrCache = cache[x]
         linha = hex(x)
 
-        if valiCache[x] == 1: #verifica o bit de validade
+        #verifica o bit de validade, se valido imprime conteudo
+        if valiCache[x] == 1:
             tag = testaTamEndr(hex(int(endrCache[0:defCache.tamTag], 2)), int(defCache.tamTag/4))#extrai tag do endereco
 
-
-            word = testaTamEndr(hex(int(endrCache, 2)), int(defCache.tamEndereco/4)) #extrair word do endereço
+            #extrair word do endereço
+            word = testaTamEndr(hex(int(endrCache, 2)), int(defCache.tamEndereco/4))
             word = word[:tamWrdHex+2]
-            data = ' '
 
+            #Concatena word para impressao
+            data = ' '
             for y in range(2**defCache.tamOffSet):
                 data = data + word[:tamWrdHex+2]+'X | '
 
             print( '|',linha,'|',valiCache[x],'|',
                    tag+' |'+ data)
 
+        #Se bit de validade for nulo ou invalido, imprime em branco
         else:
             print('|', linha, '|', valiCache[x], '|')
+
     print(traco)
     print('hit:', hit, '  miss:', miss)
 
@@ -169,11 +179,18 @@ def testaTamEndr(endr, tamEndereco):
 
 
 #-------------busca e tratamento de argumentos
+#atribuicao dos parametro
+param = sys.argv
 
-param = sys.argv  #atribuicao dos parametro
+#inicializacao de variaveis
 
+hit = 0
+miss = 0
+
+#controle para execucao do passo a passo
+passo = False
+passoCabecalho = False
 cont = len(param)
-passo = False #controle para execucao do passo a passo
 
 #testa se o segundo argumento passado e valido
 if cont == 3:
@@ -181,9 +198,11 @@ if cont == 3:
         print('\n   --Erro, argumentos não conhecidos\n')
         help()
     elif param[2] == '-p':
+        #Se o segundo paramentro for -p ele paaso recebe True, assim executando passo a passo
         passo = True
+        passoCabecalho = True
 
-#testa se os argumentos sao validos, se nao chama o help
+#testa se os argumentos sao validos ou chamada de help, senao chama o help
 if cont == 2:
     try:
         if param[1] == '/?' or param[1] == 'help':
@@ -194,26 +213,33 @@ if cont == 2:
             print('\n   --Erro, argumentos não conhecidos\n')
             help()
 
-#-------------------------------------------------------
+#chama funcao para abrir
+arqvTxt = abrirArquivo(param)
 
-#arqvTxt = abrirArquivo() #chama funcao para abrir
-arqvTxt = open('endrcache.txt', 'r', encoding="utf8")
-enderecosHexa = lerArquivo(arqvTxt) #retorna o conteudo do arquivo, cada linha em uma posicao da lista
-fecharArquivo(arqvTxt) #fecha o arquivo
+#retorna o conteudo do arquivo, cada linha em uma posicao da lista
+enderecosHexa = lerArquivo(arqvTxt)
+
+#fecha o arquivo
+fecharArquivo(arqvTxt)
+
+#inicializa a lista Cache com zeros de acordo com o tamanho de index
+cache = [0 for x in range(2**defCache.tamIndex)]
+
+#inicializa a lista do Bit de validade com zeros de acordo com o tamanho de index
+valiCache = [0 for x in range(2**defCache.tamIndex)]
 
 
-cache = [0 for x in range(2**defCache.tamIndex)] #inicializa a lista Cache com zeros de acordo com o tamanho de index
-valiCache = [0 for x in range(2**defCache.tamIndex)] #inicializa a lista do Bit de validade com zeros de
-                                            # acordo com o tamanho de index
-hit = 0
-miss = 0
 
-for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
+#a cada loop recebe um endereco para trabalhar
+for endr in enderecosHexa:
 
-    if passo == True:
+    # verifica se ira imprimir a tabela a cada leitura de endereco, imprimindo a cache vazia
+    if passo == True and passoCabecalho == True:
+
         #imprime a tabela cache
         tabelaCache(cache, valiCache, defCache, hit, miss)
-        input()
+        passoCabecalho = False
+        input() #aguarda comando do usuario para continuar
 
     try:
         endrBin = bin(int(endr, 16)) #converte de hexadecimal para binario
@@ -223,6 +249,7 @@ for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
         idx =    buscaIdx    (endrBin, defCache) #busca o index
         offset = buscaOffset (endrBin, defCache) #busca o offset
         byte =   buscaByte   (endrBin, defCache) #busca o byte
+
     except Exception:
         print('-Erro, endereço inválido', endr)
         continue
@@ -235,23 +262,27 @@ for endr in enderecosHexa: #a cada loop recebe um endereco para trabalhar
         cache[int(idx, 2)] = tag + idx + offset + byte #grava na posicao
 
     elif valiCache[int(idx,2)] == 1:
-        endrCache = cache[int(idx, 2)]
+
+        endrCache = cache[int(idx, 2)] #recebe o conteudo da linha da cache
 
         #verifica de a tag eh igual a solicitada
         if tag == endrCache[0:defCache.tamTag]:
             hit += 1 #contador de hit
         else:
-            miss += 1
-            cache[int(idx, 2)] = tag + idx + offset + byte
+            miss += 1 #contador de miss
+            cache[int(idx, 2)] = tag + idx + offset + byte #grava na posicao
 
     # verifica se ira imprimir a tabela a cada leitura de endereco
     if passo == True:
-        print('\n\nLeitura do endereço:', endr)
+
+        print('\n\nLeitura do endereço: 0x'+ endr)
+
         #imprime a tabela cache
         tabelaCache(cache, valiCache, defCache, hit, miss)
-        input()
+        input()#aguarda comando do usuario para continuar
 
-#imprime a tabela cache ao final da execucao, se não imprimir passo a passo
+
+#imprime a tabela cache ao final da execucao, se não imprimiu passo a passo
 if not passo == True:
     tabelaCache(cache, valiCache, defCache, hit, miss)
 
