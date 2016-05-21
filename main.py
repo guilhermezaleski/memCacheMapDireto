@@ -3,7 +3,7 @@
 '''
    Simulação de acesso a memória cache com mapeamento direto.
 
-   Desenvolvido em python3.5.1, por Guilherme Zaleski e Tcharles Clunck
+   Desenvolvido em python3.5.1, por Guilherme Zaleski e Tcharles Clunk
 
 '''
 
@@ -33,6 +33,7 @@ def help():
     sys.exit(1)
 
 #função para abertura de arquivo, com tratamento de erros na abertura
+# recece como parametros os argumentos e retrorna o arquivo
 def abrirArquivo(param):
     try:
 
@@ -62,6 +63,7 @@ def fecharArquivo(arqvTxt):
     arqvTxt.close()
 
 #função ler conteudo do arquivo, com tratamento de erros na leitura do arquivo
+#recebe o arquivo para ser lido e retorna uma lista com os endereços
 def lerArquivo(arqv):
     txt = []
     try:
@@ -76,6 +78,7 @@ def lerArquivo(arqv):
     return txt
 
 #função de print da estrutura visual e conteudo da cache
+#recebe como argumento as listas cache e valichache, os tamanhos  e hit miss
 def tabelaCache(cache, valiCache, defCache, hit, miss):
 
     tamWrdHex = int((defCache.tamTag + defCache.tamIndex + defCache.tamOffSet )/4) #armazena o tamanho da palavra
@@ -134,6 +137,8 @@ def tabelaCache(cache, valiCache, defCache, hit, miss):
     print('    HITS:', hit, '    MISSES:', miss)
 
 #busca tag do endereco lido do arquivo
+#recebe os endereco em binario e as definicções de tamanho
+#retorna a tag do endereço
 def buscaTag(endrBin, defCache):
 
     tag = endrBin[2:defCache.tamTag+2]
@@ -141,6 +146,8 @@ def buscaTag(endrBin, defCache):
     return tag
 
 #busca index do endereco lido do arquivo
+#recebe os endereco em binario e as definicções de tamanho
+#retorna a index do endereço
 def buscaIdx(endrBin, defCache):
 
     idx = endrBin[defCache.tamTag + 2:defCache.tamIndex + defCache.tamTag + 2]
@@ -148,6 +155,8 @@ def buscaIdx(endrBin, defCache):
     return idx
 
 #busca offset do endereco lido do arquivo
+#recebe os endereco em binario e as definicções de tamanho
+#retorna a offset do endereço
 def buscaOffset(endrBin, defCache):
 
     offset = endrBin[defCache.tamTag + defCache.tamIndex + 2 :
@@ -156,6 +165,8 @@ def buscaOffset(endrBin, defCache):
     return offset
 
 #busca byte do endereco lido do arquivo
+#recebe os endereco em binario e as definicções de tamanho
+#retorna a byte do endereço
 def buscaByte(endrBin,defCache):
 
     byte = endrBin[defCache.tamTag + defCache.tamIndex + defCache.tamOffSet + 2:
@@ -163,7 +174,8 @@ def buscaByte(endrBin,defCache):
 
     return byte
 
-#testa e complementa a quantidade de bits pedidos
+#testa e complementa com zero a quantidade de bits pedidos
+#recebe um endereço em hexa ou bin e o tamnhanho desejado
 def testaTamEndr(endr, tamEndereco):
 
     tam = len(endr) - 2
@@ -187,7 +199,7 @@ def testaTamEndr(endr, tamEndereco):
 
 #-------------busca e tratamento de argumentos
 #atribuicao dos parametro
-argumentos = sys.argv
+argv = sys.argv
 
 #inicializacao de variaveis
 
@@ -197,14 +209,14 @@ miss = 0
 #controle para execucao do passo a passo
 passo = False
 passoCabecalho = False
-cont = len(argumentos)
+cont = len(argv)
 
 #testa se o segundo argumento passado e valido
 if cont == 3:
-    if not argumentos[2] == '-p':
+    if not argv[2] == '-p':
         print('\n   --Erro, argumentos não conhecidos\n')
         help()
-    elif argumentos[2] == '-p':
+    elif argv[2] == '-p':
         #Se o segundo paramentro for -p ele paaso recebe True, assim executando passo a passo
         passo = True
         passoCabecalho = True
@@ -212,16 +224,16 @@ if cont == 3:
 #testa se os argumentos sao validos ou chamada de help, senao chama o help
 if cont == 2:
     try:
-        if argumentos[1] == '/?' or argumentos[1] == 'help':
+        if argv[1] == '/?' or argv[1] == 'help':
             print('\n   --Erro, argumentos não conhecidos\n')
             help()
     except:
-        if not argumentos[1] == '/?' or argumentos[1] == 'help':
+        if not argv[1] == '/?' or argv[1] == 'help':
             print('\n   --Erro, argumentos não conhecidos\n')
             help()
 
 #chama funcao para abrir
-arqvTxt = abrirArquivo(argumentos)
+arqvTxt = abrirArquivo(argv)
 
 #retorna o conteudo do arquivo, cada linha em uma posicao da lista
 enderecosHexa = lerArquivo(arqvTxt)
