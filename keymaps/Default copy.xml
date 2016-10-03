@@ -1,0 +1,10 @@
+<keymap version="1" name="Default copy" parent="$default">
+  <action id="CopyElement" />
+  <action id="Debug">
+    <keyboard-shortcut first-keystroke="f6" />
+  </action>
+  <action id="Move" />
+  <action id="Run">
+    <keyboard-shortcut first-keystroke="f5" />
+  </action>
+</keymap>
